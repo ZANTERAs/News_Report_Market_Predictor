@@ -287,7 +287,9 @@ def add_returns(daily: pd.DataFrame, lookahead_days: int = 1) -> pd.DataFrame:
             y_ticker = tkr
         try:
             start = (pd.to_datetime(d["date"].min()) - pd.Timedelta(days=7)).date()
+            print(start)
             end = (pd.to_datetime(d["date"].max()) + pd.Timedelta(days=7)).date()
+            print(end)
             px = yf.download(y_ticker, start=str(start), end=str(end), progress=False)["Adj Close"].dropna()
             df = d.copy()
             df = df.sort_values("date")
@@ -394,9 +396,14 @@ def run(tickers: List[str], backend: str, days: int, plot: bool, lookahead: int)
 
     print(f"\nSaved:\n- {news_file}\n- {mapped_file}\n- {daily_file}")
 
-    if plot:
+    plot = plot or (os.getenv("PLOTLY_ENABLED", "0") == "1")
+
+    if plot :
+        print("\n[info] Generating plots...")
         for t in tickers:
             plot_ticker(daily, t)
+    else:
+        print("[info] Plotting skipped (use --plot to enable)")
 
 
 def parse_args():
